@@ -3,45 +3,66 @@ kind: Namespace
 metadata:
   name: fabricio
   labels:
-    environment: dev
-    owner: fabricio
+    istio-injection: enabled
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fabricio-deployment
+  name: mi-deployment
   namespace: fabricio
   labels:
-    app: fabricioApp
+    app: mi-app
+    areanegocio: tecnologia
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: fabricioApp
+      app: mi-app
   template:
     metadata:
       labels:
-        app: fabricioApp
+        app: mi-app
     spec:
       containers:
-        - name: hola-mundo
-          image: forcet22/hola-node:1.0.0  # 🔹 Cambia esto por tu nombre de imagen
+        - name: contenedor-principal
+          image: forcet22/hola-node:1.0.0  # <-- Reemplaza con la imagen que quieras usar
           ports:
             - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: mi-configmap
+            - secretRef:
+                name: mi-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: hola-mundo-service
-  namespace: fabricio
-  labels:
-    app: fabricioApp
+  name: mi-servicio
+  namespace: fabricio  # Asegúrate de que coincida con tu Deployment
 spec:
   selector:
-    app: fabricioApp  # Debe coincidir con los labels del Deployment
+    app: mi-app  # Debe coincidir con las labels del Deployment
   ports:
     - protocol: TCP
-      port: 4000        # Puerto interno del servicio
-      targetPort: 3000 # Puerto del contenedor (ajústalo si tu app escucha en otro)
-  type: ClusterIP     # Cambia a NodePort o LoadBalancer si quieres exponerlo externamente
+      port: 4000        # Puerto del Service
+      targetPort: 3000  # Puerto del contenedor
+  type: ClusterIP     # Cambia a NodePort o LoadBalancer si quieres acceso externo
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mi-configmap
+  namespace: fabricio
+data:
+  DATABASE: "192.168.1.1"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mi-secret
+  namespace: fabricio
+type: Opaque
+data:
+  PASSWORD: aG9sYQ==
 
+---
