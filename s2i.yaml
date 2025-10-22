@@ -1,0 +1,31 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: ejercicio-fabricio-s2i
+  label:
+    app: app-fabricio-s2i
+spec:
+  lookupPolicy:
+    local: false
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: ejercicio-codigo-s2i
+  label:
+    app: ejercicio-codigo-s2i
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/apbusinessit/ejercicioclase.git
+      ref: master
+    contextDir: ''
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to: 
+      kind: ImageStreamTag
+      name: "ejercicio-codigo-s2i:latest"
