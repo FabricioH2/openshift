@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: contenedor-principal
-          image: fabricioph2/curso:{{ tag }}
+          image: fabricioph2/curso:2
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
