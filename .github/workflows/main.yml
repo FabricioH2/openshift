@@ -26,7 +26,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKER_USERNAME  }}/hola-mundo-clase123
+          images: ${{ secrets.DOCKER_USERNAME  }}/curso
+          tags: |
+            type=raw,value=build-${{ github.run_number }}
 
       - name: Build Docker image
         uses: docker/build-push-action@v5
@@ -48,6 +50,11 @@ jobs:
           curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz | tar xz
           sudo mv oc /usr/local/bin/
           oc version
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
       - name: Log in Openshift
         uses: redhat-actions/oc-login@v1
         with:
@@ -57,10 +64,9 @@ jobs:
         run: |
           echo "Reemplazando {{ tag }} con ${{ github.run_number }}"
           sed -i "s|{{ tag }}|${{ github.run_number }}|g" oc.yaml
-          cat oc.yaml
+          cat values.yaml
 
       - name: Deploy files
         run: |
-          oc project ffisa-dev
-          oc apply -f oc.yaml
-          oc rollout status deployment/mi-deployment
+          helm show chart oci://registry-1.docker.io/fabricioph2/mi-chart --version 3
+          helm upgrade --install microservicio-o oci://registry-1.docker.io/fabricioph2/mi-chart --version 3 --values values.yaml

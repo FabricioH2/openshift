@@ -6,7 +6,7 @@ app = Flask(__name__)
 def call_app_b():
     try:
         # Llamamos a la app B, que está en localhost:3001
-        response = requests.get('http://route-occasional-iguana-ffisa-dev.apps.rm1.0a51.p1.openshiftapps.com/devCurso:4000/')
+        response = requests.get('http://helm2-ffisa-dev.apps.rm1.0a51.p1.openshiftapps.com:4000/')
         return f'Respuesta de app B: {response.text}', response.status_code
     except requests.exceptions.ConnectionError:
         return 'Error: no se pudo conectar con app B', 500
